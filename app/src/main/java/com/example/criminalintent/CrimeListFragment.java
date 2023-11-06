@@ -24,6 +24,7 @@ import java.util.List;
 
 public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
+    private TextView mTextView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
     private static final int REQUEST_CRIME = 1;
@@ -40,10 +41,18 @@ public class CrimeListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
         mCrimeRecyclerView = (RecyclerView) view.findViewById(R.id.crime_recycler_view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager((getActivity())));
+        mTextView = view.findViewById(R.id.no_crime_there);
+
         if (savedInstanceState != null) {
             mSubtitleVisible = savedInstanceState.getBoolean(SAVED_SUBTITLE_VISIBLE);
         }
-        updateUI();
+
+        if (CrimeLab.get(getActivity()).getCrimes().size() <= 0) {
+            mTextView.setVisibility(View.VISIBLE);
+        } else {
+            updateUI();
+        }
+
         return view;
     }
 
@@ -103,6 +112,10 @@ public class CrimeListFragment extends Fragment {
         public int getItemCount() {
             return mCrimes.size();
         }
+
+        public void setCrimes(List<Crime> crimes) {
+            mCrimes = crimes;
+        }
     }
 
     @Override
@@ -157,6 +170,7 @@ public class CrimeListFragment extends Fragment {
             mAdapter = new CrimeAdapter(crimes);
             mCrimeRecyclerView.setAdapter(mAdapter);
         } else {
+            mAdapter.setCrimes(crimes);
             mAdapter.notifyDataSetChanged();
         }
         updateSubtitle();
