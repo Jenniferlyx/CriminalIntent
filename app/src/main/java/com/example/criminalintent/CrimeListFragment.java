@@ -1,6 +1,7 @@
 package com.example.criminalintent;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,14 +23,28 @@ import org.w3c.dom.Text;
 
 import java.util.List;
 
+import javax.security.auth.callback.Callback;
+
 public class CrimeListFragment extends Fragment {
     private RecyclerView mCrimeRecyclerView;
     private TextView mTextView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
+    private Callbacks mCallbacks;
     private static final int REQUEST_CRIME = 1;
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
+    /** Required interface for hosting activities. */
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    // Override onAttach(Activity) and onDetach() to set and unset Callbacks.
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallbacks = (Callbacks) activity;
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,8 +96,7 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
-            startActivity(intent);
+            mCallbacks.onCrimeSelected(mCrime);
         }
     }
 
@@ -142,8 +156,8 @@ public class CrimeListFragment extends Fragment {
         if (item.getItemId() == R.id.menu_item_new_crime) {
             Crime crime = new Crime();
             CrimeLab.get(getActivity()).addCrime(crime);
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
-            startActivity(intent);
+            updateUI();
+            mCallbacks.onCrimeSelected(crime);
             return true;
         } else if (item.getItemId() == R.id.menu_item_show_subtitle) {
             mSubtitleVisible = !mSubtitleVisible;
@@ -162,7 +176,13 @@ public class CrimeListFragment extends Fragment {
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
     }
 
-    private void updateUI() {
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallbacks = null;
+    }
+
+    public void updateUI() {
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
