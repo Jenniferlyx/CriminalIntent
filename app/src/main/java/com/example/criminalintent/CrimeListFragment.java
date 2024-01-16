@@ -40,6 +40,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     // Override onAttach(Activity) and onDetach() to set and unset Callbacks.
+    // This method is called when a fragment is attached to an activity.
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);

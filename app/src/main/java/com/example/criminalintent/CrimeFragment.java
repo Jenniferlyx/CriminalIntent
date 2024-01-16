@@ -110,7 +110,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void beforeTextChanged(
                 CharSequence s, int start, int count, int after) {
-                // This space intentionally left blank
+                // This space intentionally left blank, do nothing.
             }
             @Override
             public void onTextChanged(
@@ -168,6 +168,7 @@ public class CrimeFragment extends Fragment {
                 ContactsContract.Contacts.CONTENT_URI);
         mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
         mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
@@ -199,16 +200,10 @@ public class CrimeFragment extends Fragment {
             captureImage.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         }
 
-        launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                }
-        );
-
         mPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                launcher.launch(captureImage);
+                startActivityForResult(captureImage, REQUEST_PHOTO);
             }
         });
 
@@ -216,10 +211,6 @@ public class CrimeFragment extends Fragment {
         updatePhotoView();
 
         return v;
-    }
-
-    public void returnResult() {
-        getActivity().setResult(RESULT_OK, null);
     }
 
     @Override
